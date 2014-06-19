@@ -1,6 +1,6 @@
 var gateway = require(__dirname+'/../../');
 var assert = require('assert');
-var IncomingPayment = require(__dirname+'/../../lib/core/payments/incoming.js')
+var IncomingPayment = require(__dirname+'/../../lib/core/incoming_payment.js')
 var incomingPayment;
 var outgoingPayment;
 var recordedPayment;
@@ -15,13 +15,13 @@ describe('Incoming Payments', function() {
 
     it('should verify whether a destination tag is valid', function(done) {
       incomingPayment.checkDestinationTagValidity(function(isValidDestinationTag){
-        assert(!isValidDestinationTag);
+        assert(isValidDestinationTag);
         done();
       });  
     });
 
     it('should reject an empty destination tag', function(done) {
-      incomingPayment.destinationTag = '';
+      incomingPayment.destination_tag = '';
       incomingPayment.checkDestinationTagValidity(function(isValidDestinationTag){
         assert(!isValidDestinationTag);
         done();
@@ -29,7 +29,7 @@ describe('Incoming Payments', function() {
     });
 
     it('should reject a destination tag with no external account id', function(done) {
-      incomingPayment.destinationTag = '440008933838';
+      incomingPayment.destination_tag = '4933838';
       incomingPayment.checkDestinationTagValidity(function(isValidDestinationTag){
         assert(!isValidDestinationTag);
         done();
@@ -41,7 +41,7 @@ describe('Incoming Payments', function() {
 
     it('should create a database record for the payment', function(done) {
 
-      incomingPayment.recordInDatabase(function(error, paymentRecord) {
+      incomingPayment.recordInDatabase('incoming', function(error, paymentRecord) {
         recordedPayment = paymentRecord; 
         assert(!error);
         assert(paymentRecord);
@@ -106,7 +106,7 @@ describe('Incoming Payments', function() {
   
     it('should enqueue an outgoing payment record with inverted source/destination', function(done) {
       assert.strictEqual(outgoingPayment.toAddress.tag, 22556);
-      assert.strictEqual(outgoingPayment.fromAddress.tag, 103);
+      assert.strictEqual(outgoingPayment.fromAddress.tag, 4933838);
       assert.strictEqual(outgoingPayment.to_amount, '20');
       assert.strictEqual(outgoingPayment.to_currency, 'USD');
       assert.strictEqual(outgoingPayment.from_amount, '1');

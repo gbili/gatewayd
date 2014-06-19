@@ -1,47 +1,25 @@
 var gateway = require(__dirname+'/../');
+var RippleAccountListener = require(__dirname+'/../lib/ripple/listener.js');
+var IncomingPayment = require(__dirname+'/../lib/core/incoming_payment.js');
+var rippleAccountListener = new RippleAccountListener();
 
-var Listener = require(__dirname+'/../lib/ripple/listener.js');
+rippleAccountListener.onPayment = function(payment) {
+  var incomingPayment = new IncomingPayment(payment);
+  console.log('INCOMING PAYMENT', payment);
 
-var listener = new Listener();
-
-listener.onPayment = function(payment) {
-  if (payment && payment.destination_account == gateway.config.get('COLD_WALLET')) {
-
-    var opts = {
-      destinationTag : payment.destination_tag,
-      transaction_state : payment.result,
-      hash : payment.hash
-    };
-
-    if (opts.destinationTag && (opts.transaction_state  == 'tesSUCCESS')){
-
-      opts.amount = payment.destination_amount.value;
-      opts.currency = payment.destination_amount.currency;
-      opts.issuer = payment.destination_amount.issuer;
-      opts.state = 'incoming';
-
-      if (opts.issuer == gateway.config.get('COLD_WALLET')) {
-
-        gateway.api.recordIncomingPayment(opts, function(err, record) {
-          if (err) {
-            console.log('error:', err); 
-
-          } else {
-            try {
-              console.log(record.toJSON()); 
-
-            } catch(e) {
-              console.log('error', e);
-
-            }
-          }
-        });
-      }
+  incomingPayment.checkDestinationTagValidity(function(isValidDestinationTag) {
+    if (isValidDestinationTag) {
+      incomingPayment.recordInDatabase('incoming', function(error, recordedPayment) {
+        console.log('payment recorded in database');
+      });
+    } else {
+      console.log('invalid destination tag', payment);
+      incomingPayment.bounce(function(error, outgoingPayment) {
+        console.log('payment bounced');
+      });
     }
-  };
+  });
 };
 
-listener.start(gateway.config.get('LAST_PAYMENT_HASH'));
-
-console.log('Listening for incoming ripple payments from Ripple REST.');
+rippleAccountListener.start(gateway.config.get('LAST_PAYMENT_HASH'));
 
