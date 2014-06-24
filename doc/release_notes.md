@@ -1,3 +1,11 @@
+##06/24/2014
+3.20.1
+
+###Fixed bugs:
+- On incoming payments record to_address_id not from_address_id
+- Fix generate_wallet cli command
+- Update fund_hot_wallet CLI command notes
+
 ##06/10/2014
 
 ###Version:

@@ -1,6 +1,6 @@
 {
   "name": "ripple-gateway",
-  "version": "3.20.0",
+  "version": "3.20.1",
   "scripts": {
     "start": "./bin/gateway start",
     "test": "mocha -R spec ./test/http"
