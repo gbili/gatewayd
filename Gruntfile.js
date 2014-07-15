@@ -7,7 +7,7 @@ module.exports = function (grunt) {
     migrate: {
       options: {
         config: './lib/data/database.json',
-        dir: './lib/data/migrations',
+        'migrations-dir': './lib/data/migrations',
         verbose: true,
         env: {
           DATABASE_URL: nconf.get('DATABASE_URL')
